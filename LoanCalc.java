@@ -29,9 +29,9 @@ public class LoanCalc {
 	// interest rate (as a percentage), the number of periods (n), and the periodical payment.
 	private static double endBalance(double loan, double rate, int n, double payment) {	
 		double currentBalance = loan;
-		double monthlyRate = rate / 100.0;
+		double periodicalFactor = 1+(rate / 100.0);
 		for(int i=0; i<n; i++){
-			currentBalance *= (1.0 + monthlyRate);
+			currentBalance *= periodicalFactor;
 			currentBalance -= payment;
 		}
 		return currentBalance;		
@@ -44,14 +44,17 @@ public class LoanCalc {
 	// Side effect: modifies the class variable iterationCounter.
     public static double bruteForceSolver(double loan, double rate, int n, double epsilon) {
 		iterationCounter = 0;
-		double guess = 0.0001;
-		double balanceForCurrentGuess = endBalance(loan, rate, n, guess);
-		while (balanceForCurrentGuess > 0) {
-			guess += epsilon;
-			balanceForCurrentGuess = endBalance(loan, rate, n, guess);
-			iterationCounter++;
+		double guessPayment = loan / (double) n;
+		//double guessPayment = 1.0;
+		double increment = 0.001;
+		while (Math.abs(endBalance(loan, rate, n, guessPayment)) >= epsilon) {
+			if(endBalance(loan, rate, n, guessPayment) < 0){
+				return guessPayment - increment;
+			}
+			guessPayment += increment;
+            iterationCounter++;
 		}
-		return guess;
+		return guessPayment;		
     }
     
     // Uses bisection search to compute an approximation of the periodical payment 
@@ -61,20 +64,18 @@ public class LoanCalc {
 	// Side effect: modifies the class variable iterationCounter.
     public static double bisectionSolver(double loan, double rate, int n, double epsilon) {
 		iterationCounter = 0;  // calculate the "Side effects"
-		double monthlyRate = rate / 100.0;
-        double lowerBound = loan / (double) n;
-		double upperBound = loan * Math.pow(1.0 + monthlyRate, n);
-		double guess = (lowerBound + upperBound) / 2.0; // midpoint of the current range
-		double balanceForCurrentGuess = endBalance(loan, rate, n, guess);
-		while (Math.abs(balanceForCurrentGuess)>= epsilon) {
-			if(balanceForCurrentGuess > 0){ //if the guess was too high
-				lowerBound = guess;
-			} else {  //if the guess was too low
-				upperBound = guess;
-			}
-			guess = (upperBound + lowerBound) / 2.0;
-			balanceForCurrentGuess = endBalance(loan, rate, n, guess);
-			iterationCounter++;			
+		double L = 0.0 , H = loan; // lowerbound & upperbound
+		double guess = (L + H) / 2.0; // midpoint of the current range
+		double balance = endBalance(loan, rate, n, guess);
+		while (Math.abs(balance) >= epsilon){
+			if (balance > 0.0) {
+            L = guess;
+           } else {
+			H = guess;
+		   }
+		   guess = (L + H) / 2.0;
+		   balance = endBalance(loan, rate, n, guess);
+		   iterationCounter++;
 		}
 		return guess;
     }

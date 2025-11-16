@@ -45,10 +45,9 @@ public class LoanCalc {
     public static double bruteForceSolver(double loan, double rate, int n, double epsilon) {
 		iterationCounter = 0;
 		double guess = 0.01;
-		double increment = 0.0001;
 		double balanceForCurrentGuess = endBalance(loan, rate, n, guess);
-		while (Math.abs(balanceForCurrentGuess) >= epsilon && balanceForCurrentGuess > 0) {
-			guess += increment;
+		while (balanceForCurrentGuess > 0) {
+			guess += epsilon;
 			balanceForCurrentGuess = endBalance(loan, rate, n, guess);
 			iterationCounter++;
 		}

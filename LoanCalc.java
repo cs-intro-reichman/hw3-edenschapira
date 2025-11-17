@@ -28,8 +28,12 @@ public class LoanCalc {
 	// Computes the ending balance of a loan, given the loan amount, the periodical
 	// interest rate (as a percentage), the number of periods (n), and the periodical payment.
 	private static double endBalance(double loan, double rate, int n, double payment) {	
-		// Replace the following statement with your code
-		return 0;
+		double currentBalance = loan;
+		double rate1 = 1 + (rate / 100);
+		for(int i=0; i<n; i++){
+			currentBalance = (currentBalance - payment) * rate1;
+		}
+		return currentBalance;		
 	}
 	
 	// Uses sequential search to compute an approximation of the periodical payment
@@ -38,8 +42,13 @@ public class LoanCalc {
 	// the number of periods (n), and epsilon, the approximation's accuracy
 	// Side effect: modifies the class variable iterationCounter.
     public static double bruteForceSolver(double loan, double rate, int n, double epsilon) {
-		// Replace the following statement with your code
-		return 0;
+		iterationCounter = 0;
+		double guessPayment = loan / n;
+		while (endBalance(loan, rate, n, guessPayment) >= epsilon) {
+			guessPayment += epsilon;
+            iterationCounter++;
+		}
+		return guessPayment;		
     }
     
     // Uses bisection search to compute an approximation of the periodical payment 
@@ -47,8 +56,21 @@ public class LoanCalc {
 	// Given: the sum of the loan, the periodical interest rate (as a percentage),
 	// the number of periods (n), and epsilon, the approximation's accuracy
 	// Side effect: modifies the class variable iterationCounter.
-    public static double bisectionSolver(double loan, double rate, int n, double epsilon) {  
-        // Replace the following statement with your code
-		return 0;
+    public static double bisectionSolver(double loan, double rate, int n, double epsilon) {
+		iterationCounter = 0;  // calculate the "Side effects"
+		double L = loan / n; // lowerbound
+		double H = loan * (1.0 + rate / 100); // upperbound
+		double guess = 1; // any value for guess because it gets a new value in the while loop
+		while (( H - L) > epsilon){
+			guess = (H + L)/2.0;
+			double endGuess = endBalance(loan, rate, n, guess);
+			if (endGuess * endBalance(loan, rate, n, L)>0) {
+            L = guess;
+           } else {
+			H = guess;
+		   }
+		   iterationCounter++;
+		}
+		return guess;
     }
 }
